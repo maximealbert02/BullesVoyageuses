@@ -34,12 +34,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 
   const login = async (username: string, password: string) => {
+    console.log(JSON.stringify({username, password}))
     
     const response = await fetch('http://192.168.1.125:8000/api/auth/login/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
+
+    
+
+
+    if (!response.ok) {
+        const errorInfo = await response.json();
+        console.log("Erreur : ", errorInfo)
+        return
+    }
 
     if (response.ok) {
       const data = await response.json();

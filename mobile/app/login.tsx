@@ -25,11 +25,11 @@ export default function LoginScreen() {
       throw new Error('Error fetching context : AuthContext');
   }
   const { login } = auth;
-  // 3. L'action du bouton
+
   const handleLogin = async () => {
     // Petite vérification de base
     if (!username || !password) {
-      alert("Veuillez remplir tous les champs ✈️");
+      alert("Veuillez saisir votre adresse mail et votre mot de passe");
       return;
     }
 
@@ -47,7 +47,7 @@ export default function LoginScreen() {
     >
       <View style={styles.formContainer}>
         <Text style={styles.title}>Bulles Voyageuses</Text>
-        <Text style={styles.subtitle}>Espace Agent</Text>
+        <Text style={styles.subtitle}>Accédez à votre réservation</Text>
 
         <TextInput
           style={styles.input}
@@ -55,7 +55,7 @@ export default function LoginScreen() {
           placeholderTextColor="#999"
           value={username}
           onChangeText={setUsername}
-          autoCapitalize="none" // Indispensable pour les identifiants
+          autoCapitalize="none" 
           autoCorrect={false}
         />
 
@@ -65,7 +65,7 @@ export default function LoginScreen() {
           placeholderTextColor="#999"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry // Cache le mot de passe (****)
+          secureTextEntry 
           autoCapitalize="none"
         />
 
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     elevation: 2, // Pour l'ombre sur Android
   },
   button: {
-    backgroundColor: '#007AFF', // Un beau bleu iOS
+    backgroundColor: '#1E88E5', // Un beau bleu iOS
     height: 55,
     borderRadius: 12,
     justifyContent: 'center',
