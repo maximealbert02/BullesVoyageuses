@@ -1,28 +1,36 @@
-import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs';
+import {Slot, useRouter, useSegments} from 'expo-router'
+import { AuthProvider, AuthContext } from './services/AuthContext'
+import { useContext, useEffect } from 'react'
 
-export default function TabLayout() {
-  return (
-    <NativeTabs>
-      <NativeTabs.Trigger name="index">
-        <Label>Home</Label>
-        <Icon sf="house.fill" drawable="custom_android_drawable" />
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="maps">
-        <Icon sf="map" drawable="custom_settings_drawable" />
-        <Label>Maps</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="trip">
-        <Icon sf="list.bullet" drawable="custom_settings_drawable" />
-        <Label>Trip</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="support">
-        <Icon sf="questionmark.circle" drawable="custom_settings_drawable" />
-        <Label>Support</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="account">
-        <Icon sf="person.crop.circle" drawable="custom_settings_drawable" />
-        <Label>Account</Label>
-      </NativeTabs.Trigger>
-    </NativeTabs>
-  );
+const RootLayoutNav = () => {
+    const auth = useContext(AuthContext);
+    if (!auth) {
+        throw new Error('RootLayoutNav must be used within AuthProvider');
+    }
+    const { userToken, isLoading } = auth;
+    const segments = useSegments();
+    const router = useRouter();
+
+    useEffect(()=> {
+        if (isLoading) return;
+
+        const inTabsGroup = segments[0] === '(tabs)';
+
+        if (!userToken) {
+            router.replace('/login');
+        }else if (userToken && !inTabsGroup) {
+            router.replace('/(tabs)')
+        }
+    }, [userToken, isLoading, segments])
+
+    return <Slot/>
+
+}
+
+export default function Layout(){
+    return(
+        <AuthProvider>
+            <RootLayoutNav/>
+        </AuthProvider>
+    )
 }

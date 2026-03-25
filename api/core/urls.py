@@ -19,6 +19,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from trips.views import PaymentViewSet, TripViewSet, LinkedItemViewSet, StepViewSet
 from users.views import ProfileViewSet
+from rest_framework.authtoken.views import obtain_auth_token
 
 router = DefaultRouter()
 router.register(r'trips', TripViewSet)
@@ -33,4 +34,5 @@ router.register(r'profiles', ProfileViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/auth/login/', obtain_auth_token, name='api_token_auth')
 ]
