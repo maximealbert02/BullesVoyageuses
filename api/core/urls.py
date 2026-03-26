@@ -17,8 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from trips.views import PaymentViewSet, TripViewSet, LinkedItemViewSet, StepViewSet
-from users.views import ProfileViewSet
+from trips.views import BookingViewSet, PaymentViewSet, TripViewSet, LinkedItemViewSet, StepViewSet
 from rest_framework.authtoken.views import obtain_auth_token
 
 router = DefaultRouter()
@@ -26,7 +25,7 @@ router.register(r'trips', TripViewSet)
 router.register(r'payments', PaymentViewSet)
 router.register(r'steps', StepViewSet)
 router.register(r'linked-items', LinkedItemViewSet)
-router.register(r'profiles', ProfileViewSet)
+router.register(r'bookings', BookingViewSet)
 
 
 

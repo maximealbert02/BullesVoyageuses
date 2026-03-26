@@ -1,9 +1,7 @@
 from email.policy import default
 from random import choices
 from django.db import models
-from django.contrib.auth.models import User
-
-from users.models import Profile
+from users.models import User
 
 
 # Create your models here.
@@ -20,7 +18,7 @@ class Trip(models.Model):
     end_date = models.DateField()
     status = models.CharField(max_length=20, choices=TripStatus.choices, default=TripStatus.PLANNED)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    travellers = models.ManyToManyField(Profile, related_name="trips", null=True, through="trips.Booking")
+    travellers = models.ManyToManyField(User, related_name="trips", through="trips.Booking")
     details = models.JSONField(default=dict, null=True)
 
     def __str__(self):
@@ -51,8 +49,8 @@ class LinkedItem(models.Model):
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=20, default="e-ticket")
     assets = models.FilePathField(path="/path/to/assets")  # Changer le path
-    profile = models.ForeignKey(
-        Profile, on_delete=models.CASCADE, null=True, blank=True
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, null=True, blank=True, related_name='linked_items'
     )
 
     def __str__(self):
@@ -63,8 +61,8 @@ class Payment(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField()
     method = models.CharField(max_length=20, default="credit_card")
-    profile = models.ForeignKey(
-        Profile, on_delete=models.CASCADE, related_name="payments_history"
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="payments_history"
     )
     booking = models.ForeignKey('trips.Booking', related_name="payments", on_delete=models.CASCADE, null=True)
 
@@ -74,11 +72,11 @@ class Payment(models.Model):
 
 class Booking(models.Model) : 
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
     booking_date=models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.trip.name} - {self.user.user}"
+        return f"{self.trip.name} - {self.user}"
 
     def total_paid(self):
         return sum(p.amount for p in self.payments)

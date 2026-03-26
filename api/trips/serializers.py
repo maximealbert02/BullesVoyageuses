@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from .models import Booking, Trip, Step, LinkedItem, Payment
 
     
@@ -25,6 +26,8 @@ class TripSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class BookingSerializer(serializers.ModelSerializer):
+    trip = TripSerializer(read_only=True)
     class Meta:
-        model : Booking
+        model = Booking
         fields = '__all__'
+

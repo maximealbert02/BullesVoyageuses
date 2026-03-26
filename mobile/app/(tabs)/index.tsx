@@ -1,25 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Text, View, StyleSheet, FlatList } from "react-native";
+import { AuthContext } from "../services/AuthContext";
 
 export default function Index() {
 
   const [trips, setTrips] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [userBookings, setUserBookings] = useState([]);
+
+  const auth = useContext(AuthContext);
+  if (!auth) {
+      throw new Error('Error fetching context : AuthContext');
+  }
+  const {make_api_call, isLoading, userToken} = auth
 
   useEffect(()=>{
-    console.log("la page vient d'arriver")
-    fetch('http://192.168.1.125:8000/api/trips/').then(response => {
-      if (!response.ok) throw new Error("Network error");
-      return response.json()
-    }).then(data => {
-      console.log(data)
-      setTrips(data);
-      setIsLoading(false)
-    }).catch(error => {
-      console.log(error)
-    })
 
-  }, [])
+    if (isLoading || !userToken) return;
+
+    const fetchData = async () => {
+      try{
+        await make_api_call('GET', 'http://192.168.1.125:8000/api/bookings/').then((fetchedData)=>{
+          setUserBookings(fetchedData);
+        });
+      }catch(err){
+        throw new Error(`Error : ${err}`);
+      }
+    };
+    fetchData();
+
+    
+  }, [isLoading, userToken])
 
   return (
     <View
@@ -29,7 +39,7 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text>{JSON.stringify(trips)}</Text>
+      <Text>{JSON.stringify(userBookings)}</Text>
     </View>
   );
 }

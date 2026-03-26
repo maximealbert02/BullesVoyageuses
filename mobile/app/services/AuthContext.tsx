@@ -1,5 +1,5 @@
 
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState, useCallback } from 'react';
 import * as SecureStore from 'expo-secure-store';
 
 type AuthContextValue = {
@@ -7,6 +7,7 @@ type AuthContextValue = {
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  make_api_call : (method : string, url : string, body?: any) =>  Promise<any>;
 };
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -43,8 +44,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     
-
-
     if (!response.ok) {
         const errorInfo = await response.json();
         console.log("Erreur : ", errorInfo)
@@ -60,14 +59,56 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Fonction pour se déconnecter
+
   const logout = async (): Promise<void> => {
     setUserToken(null);
     await SecureStore.deleteItemAsync('userToken');
   };
 
+  const make_api_call = async (method : string, url : string, body : any = null) => {
+
+    if (!userToken){
+        alert("Unauthentificated user")
+        throw new Error("No token available");
+    }
+
+    const options : RequestInit = {
+        method : method,
+        headers : {
+            Accept : 'application/json',
+            'Content-Type' : 'application/json',
+            'Authorization' : `Token ${userToken}`
+        }
+    }
+
+    if (body){
+        options.body = JSON.stringify(body) // if body != null, we add it in the request body
+    }
+    
+    try{
+        const response = await fetch (url, options);
+        
+        if (!response.ok){
+            if (response.status == 401){
+                alert("Token isn't valid anymore, please reconnect")
+                logout();
+            }
+
+            const errorData = await response.json().catch(()=> null)
+            console.error(`Erreur API (${response.status}) - ${errorData}`)
+            throw new Error(`Servor error : ${response.status}`)
+        }
+
+        return await response.json()
+    }catch(err){
+        console.error(`Network error ${err}`)
+        throw err
+    }
+
+  }
+
   return (
-    <AuthContext.Provider value={{ userToken, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ userToken, isLoading, login, logout, make_api_call }}>
       {children}
     </AuthContext.Provider>
   );
